@@ -1,28 +1,23 @@
 package com.example.gallery
 
-import android.content.Context
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitSingleton private constructor(){
 
-    private var myService : ApiService
     companion object {
         private var INSTANCE : RetrofitSingleton?=null
-
+        private val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl("https://pixabay.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        private val myService : ApiService = retrofit.create(ApiService::class.java)
         fun getInstance() =
             INSTANCE?: synchronized(this) {
                 RetrofitSingleton().also { INSTANCE = it }
             }
     }
-    init {
-            Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://www.wanandroid.com/")
-            .build().apply {
-                myService = create(ApiService::class.java)
-            }
-    }
+
     fun getService() : ApiService{
         return myService
     }

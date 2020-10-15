@@ -10,8 +10,8 @@ interface ApiService {
 //    companion object {
 //        val baseUrl = "https://pixabay.com/"
 //    }
-
+    //https://pixabay.com/api/?key=1d61&q=flower&per_page=100
     @GET("api/")
-    fun getPhoto(@QueryMap params: HashMap<String, String>): Call<PhotoItem?>?
+    fun getPhoto(@QueryMap params: HashMap<String, String>): Call<Pixabay?>?
 
 }
