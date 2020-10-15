@@ -2,6 +2,8 @@ package com.example.gallery
 
 import android.content.Context
 import com.android.volley.RequestQueue
+import retrofit2.Retrofit
+
 import com.android.volley.toolbox.Volley
 
 class VolleySingleton private constructor(context:Context){
