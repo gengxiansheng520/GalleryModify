@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -15,7 +16,7 @@ import kotlinx.android.synthetic.main.fragment_gallery.*
  * A simple [Fragment] subclass.
  */
 class GalleryFragment : Fragment() {
-    private lateinit var galleryViewModel: GalleryViewModel
+    private val galleryViewModel by viewModels<GalleryViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,7 +30,7 @@ class GalleryFragment : Fragment() {
         when(item.itemId) {
             R.id.swipeIndicator -> {
                 swipeLayoutGallery.isRefreshing = true
-                Handler().postDelayed(Runnable {galleryViewModel.fetchData() },1000)
+                //Handler().postDelayed(Runnable {galleryViewModel.fetchData() },1000)
             }
         }
 
@@ -47,18 +48,9 @@ class GalleryFragment : Fragment() {
             adapter = galleryAdapter
             layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         }
-
-        galleryViewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory(requireActivity().application)).get(GalleryViewModel::class.java)
-        galleryViewModel.photoListLive.observe(this, Observer {
+        galleryViewModel.pagedListLiveData.observe(viewLifecycleOwner, Observer {
             galleryAdapter.submitList(it)
-            swipeLayoutGallery.isRefreshing = false
         })
 
-        galleryViewModel.photoListLive.value?:galleryViewModel.fetchData()
-
-        swipeLayoutGallery.setOnRefreshListener {
-            galleryViewModel.fetchData()
-        }
     }
-
 }

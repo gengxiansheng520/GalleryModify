@@ -1,7 +1,11 @@
 package com.example.gallery
 
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.QueryMap
+import java.util.HashMap
 
 class RetrofitSingleton private constructor(){
 
@@ -21,5 +25,11 @@ class RetrofitSingleton private constructor(){
     fun getService() : ApiService{
         return myService
     }
+}
+interface ApiService {
+    //https://pixabay.com/api/?key=1d61&q=flower&per_page=100
+    @GET("api/")
+    fun getPhoto(@QueryMap params: HashMap<String, String>): Call<Pixabay?>
+
 }
 

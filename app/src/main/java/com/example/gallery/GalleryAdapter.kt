@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,14 +17,13 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.mygallery_cell.view.*
 
-class GalleryAdapter:ListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
+class GalleryAdapter: PagedListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val holder = MyViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.mygallery_cell,parent,false))
         holder.itemView.setOnClickListener {
             Bundle().apply {
-                putParcelableArrayList("PHOTO_LIST", ArrayList(currentList))
+                putParcelableArrayList("PHOTO_LIST", ArrayList(currentList!!))
                 putInt("PHOTO_POSITION",holder.adapterPosition)
-                //putParcelable("PHOTO",getItem(holder.adapterPosition))
                 holder.itemView.findNavController().navigate(R.id.action_galleryFragment_to_pagerPhotoFragment,this)
             }
         }
@@ -32,7 +32,7 @@ class GalleryAdapter:ListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val photoItem = getItem(position)
+        val photoItem = getItem(position)?: return
         with(holder.itemView) {
             shimmerLayoutCell.apply {
                 setShimmerColor(0x55FFFFFF)
@@ -42,10 +42,10 @@ class GalleryAdapter:ListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
             textViewUser.text = photoItem.photoUser
             textViewLikes.text = photoItem.photoLikes.toString()
             textViewFavorites.text = photoItem.photoFavorites.toString()
-            imageView.layoutParams.height = getItem(position).photoHeight
+            imageView.layoutParams.height = photoItem.photoHeight
         }
         Glide.with(holder.itemView)
-            .load(getItem(position).previewUrl)
+            .load(getItem(position)?.previewUrl)
             .placeholder(R.drawable.photo_plcaeholder)
             .listener(object :RequestListener<Drawable>{
                 override fun onLoadFailed(
