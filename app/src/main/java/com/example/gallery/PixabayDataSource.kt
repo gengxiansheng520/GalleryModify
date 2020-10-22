@@ -59,13 +59,12 @@ class PixabayDataSource:PageKeyedDataSource<Int, PhotoItem>() {
     private fun getMap(pager: Int) {
         map["key"] = "18406861-c6e0c4888076e3bb006248fd0"
         map["q"] = keyWords
-        map["per_page"] = "100"
+        map["per_page"] = "50"
         map["page"] = pager.toString()
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, PhotoItem>) {
-        //getMap(params.key)
-        getMap(7)
+        getMap(params.key)
         retry = null
         _networkStatus.postValue(NetworkStatus.LOADING)
         RetrofitSingleton.getInstance().getService().getPhoto(map)?.enqueue(object :
@@ -81,11 +80,15 @@ class PixabayDataSource:PageKeyedDataSource<Int, PhotoItem>() {
             }
 
             override fun onResponse(call: Call<Pixabay?>, response: retrofit2.Response<Pixabay?>) {
-                _networkStatus.postValue(NetworkStatus.LOADED)
-                Log.d("hello", "loadAfter:" + response.body().toString())
-                val res = response.body() ?: return
-                val dataList = res.hits.toList()
-                callback.onResult(dataList, params.key + 1)
+                if (response.code() == 400) {
+                    _networkStatus.postValue((NetworkStatus.COMPLETED))
+                } else {
+                    _networkStatus.postValue(NetworkStatus.LOADED)
+                    Log.d("hello", "loadAfter:" + response.code())
+                    val res = response.body() ?: return
+                    val dataList = res.hits.toList()
+                    callback.onResult(dataList, params.key + 1)
+                }
             }
         })
     }
