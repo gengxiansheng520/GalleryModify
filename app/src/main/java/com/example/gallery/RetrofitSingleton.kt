@@ -28,10 +28,8 @@ class RetrofitSingleton private constructor(){
     }
 }
 interface ApiService {
-    //https://pixabay.com/api/?key=18406861-c6e0c4888076e3bb006248fd0=flower&per_page=100&page=5
     @GET("api/")
     fun getPhoto(@QueryMap params: HashMap<String, String>): Call<Pixabay?>?
-    @GET("api/")
-    fun getPhotoTest(@QueryMap params: HashMap<String, String>): Call<Response<Any>>?
+
 }
 
