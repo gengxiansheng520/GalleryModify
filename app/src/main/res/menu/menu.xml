@@ -2,6 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menuRetry"
+        android:title="Retry" />
+    <item
         android:id="@+id/swipeIndicator"
         android:title="swipe to refresh" />
 </menu>

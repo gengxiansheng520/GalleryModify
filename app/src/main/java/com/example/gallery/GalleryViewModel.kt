@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.paging.toLiveData
 import com.android.volley.Request
 import com.android.volley.Response
@@ -17,6 +18,13 @@ import retrofit2.Retrofit
 import java.util.*
 
 class GalleryViewModel(application: Application) : AndroidViewModel(application) {
-    val pagedListLiveData = PixabayDataSourceFactory().toLiveData(1)
-
+    private val factory = PixabayDataSourceFactory()
+    val networkStatus: LiveData<NetworkStatus> = Transformations.switchMap(factory.pixabayDataSource) { it.networkStatus }
+    val pagedListLiveData = factory.toLiveData(1)
+    fun resetQuery() {
+        pagedListLiveData.value?.dataSource?.invalidate()
+    }
+    fun retry() {
+        factory.pixabayDataSource.value?.retry?.invoke()
+    }
 }

@@ -17,6 +17,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.get
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
@@ -30,7 +32,7 @@ import kotlinx.coroutines.*
 const val REQUEST_WRITE_EXTERNAL_STORAGE = 1
 
 class PagerPhotoFragment : Fragment() {
-
+    val galleryViewModel by activityViewModels<GalleryViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,19 +43,24 @@ class PagerPhotoFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val photoList = arguments?.getParcelableArrayList<PhotoItem>("PHOTO_LIST")
-
-        PagerPhotoListAdapter().apply {
-            viewPager.adapter = this
-            submitList(photoList)
-        }
+        val adapter = PagerPhotoListAdapter()
+        viewPager.adapter = adapter
+        galleryViewModel.pagedListLiveData.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(it)
+            viewPager.setCurrentItem(arguments?.getInt("PHOTO_POSITION") ?: 0, false)
+        })
+        //val photoList = arguments?.getParcelableArrayList<PhotoItem>("PHOTO_LIST")
+//        PagerPhotoListAdapter().apply {
+//            viewPager.adapter = this
+//            submitList(photoList)
+//        }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                text_photo.text = getString(R.string.photo_tag, position + 1, photoList?.size)
+                text_photo.text = getString(R.string.photo_tag, position + 1, galleryViewModel.pagedListLiveData.value?.size)
             }
         })
-        viewPager.setCurrentItem(arguments?.getInt("PHOTO_POSITION") ?: 0, false)
+
         saveButton.setOnClickListener {
             if (Build.VERSION.SDK_INT < 29 && ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -69,23 +76,7 @@ class PagerPhotoFragment : Fragment() {
                 //viewLifecycleOwner.lifecycleScope.launch { savePhoto() }
                 viewLifecycleOwner.lifecycleScope.launch { save() }
             }
-//            if (Build.VERSION.SDK_INT < 29 && ContextCompat.checkSelfPermission(
-//                    requireContext(),
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                requestPermissions(
-//                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-//                    REQUEST_WRITE_EXTERNAL_STORAGE
-//                )
-//            } else {
-//                viewLifecycleOwner.lifecycleScope.launch {
-//                    savePhoto()
-//                }
-//            }
         }
-
-
     }
 
     private suspend fun save() {
