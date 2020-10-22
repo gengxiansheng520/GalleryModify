@@ -15,7 +15,7 @@ class PixabayDataSource:PageKeyedDataSource<Int,PhotoItem>() {
         callback: LoadInitialCallback<Int, PhotoItem>
     ) {
         getMap(1)
-        RetrofitSingleton.getInstance().getService().getPhoto(map).enqueue(object :
+        RetrofitSingleton.getInstance().getService().getPhoto(map)?.enqueue(object :
         Callback<Pixabay?> {
         override fun onFailure(call: Call<Pixabay?>, t: Throwable) {
             Log.d("hello", "loadInitial:$t")
@@ -36,14 +36,15 @@ class PixabayDataSource:PageKeyedDataSource<Int,PhotoItem>() {
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, PhotoItem>) {
         getMap(params.key)
-        RetrofitSingleton.getInstance().getService().getPhoto(map).enqueue(object :
+        RetrofitSingleton.getInstance().getService().getPhoto(map)?.enqueue(object :
             Callback<Pixabay?> {
             override fun onFailure(call: Call<Pixabay?>, t: Throwable) {
                 Log.d("hello", "loadInitial:$t")
             }
             override fun onResponse(call: Call<Pixabay?>, response: retrofit2.Response<Pixabay?>) {
-                val dataList = response.body()?.hits?.toList()
-                callback.onResult(dataList!!,params.key+1)
+                val res = response.body()?: return
+                val dataList = res.hits.toList()
+                callback.onResult(dataList,params.key+1)
             }
         })
     }
